@@ -36,47 +36,58 @@ export default {
     };
   },
   methods: {
+
     filterState() {
       this.$nextTick(() => {
-        let viz = document.getElementById('tableauViz');
-
-        if (viz) {
-          viz.addEventListener('vizReady', () => {
-            const dataFilter = this.inputValue;
-            let sheet = viz.workbook.activeSheet;
-            const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
-            saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
-          });
-        }
+        this.filterState();
       });
     }
     // filterState() {
     //   this.$nextTick(() => {
-    //     const dataFilter = this.inputValue;
-    //
-    //     let viz = document.getElementById('tableauViz');
-    //
-    //     let sheet = viz.workbook.activeSheet;
-    //
-    //     const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
-    //
-    //     saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+    //     if (viz) {
+    //       viz.addEventListener('vizReady', () => {
+    //         const dataFilter = this.inputValue;
+    //         let sheet = viz.workbook.activeSheet;
+    //         const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
+    //         saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+    //       });
+    //     }
     //   });
     // }
   },
   mounted() {
     this.$nextTick(() => {
+
       const containerDiv = this.$refs.tableauViz;
       const url = "https://public.tableau.com/views/Superstore_24/Overview";
       const options = {
         hideTabs: false,
         onFirstInteractive: () => {
           console.log("Tableau viz has loaded.");
+          // let sheet = viz.getWorkbook().getActiveSheet();
+          // console.log(sheet)
+          // const saleMap = sheet.getWorksheets().find(ws => ws.name === "SaleMap");
+          // saleMap.applyFilterAsync("State", ["Washington"], FilterUpdateType.Replace);
+          // console.log(sheet)
         },
       };
       const viz = new window.tableau.Viz(containerDiv, url, options);
       console.log(viz);
+
+      this.filterState = () => {
+        let sheet = viz.getWorkbook().getActiveSheet();
+        console.log(sheet)
+        // const saleMap = sheet.getWorksheets();
+        // console.log(saleMap)
+        const saleMap = sheet.getWorksheets().find(ws => ws.name === "SaleMap");
+        console.log("saleMap"+saleMap)
+        const dataFilter = this.inputValue;
+        console.log(dataFilter)
+        const fieldExists = saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+        console.log(fieldExists)
+      };
     });
+
   }
 };
 </script>
