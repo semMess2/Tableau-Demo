@@ -32,26 +32,42 @@ import {FilterUpdateType} from 'tableau-api';
 export default {
   data() {
     return {
-      inputValue: null
+      inputValue: ''
     };
   },
   methods: {
     filterState() {
-      const dataFilter = this.inputValue;
+      this.$nextTick(() => {
+        let viz = document.getElementById('tableauViz');
 
-      let viz = this.$refs.tableauViz;
-
-      let sheet = viz.workbook.activeSheet;
-
-      const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
-
-      saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+        if (viz) {
+          viz.addEventListener('vizReady', () => {
+            const dataFilter = this.inputValue;
+            let sheet = viz.workbook.activeSheet;
+            const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
+            saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+          });
+        }
+      });
     }
+    // filterState() {
+    //   this.$nextTick(() => {
+    //     const dataFilter = this.inputValue;
+    //
+    //     let viz = document.getElementById('tableauViz');
+    //
+    //     let sheet = viz.workbook.activeSheet;
+    //
+    //     const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
+    //
+    //     saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
+    //   });
+    // }
   },
   mounted() {
     this.$nextTick(() => {
       const containerDiv = this.$refs.tableauViz;
-      const url = "https://public.tableau.com/views/Superstore_embedded_800x800/Overview?:language=th-TH&:display_count=n&:origin=viz_share_link";
+      const url = "https://public.tableau.com/views/Superstore_24/Overview";
       const options = {
         hideTabs: false,
         onFirstInteractive: () => {
