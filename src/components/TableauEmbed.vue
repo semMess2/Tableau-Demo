@@ -2,7 +2,12 @@
   <v-container>
     <div>
       <v-row justify="center">
-        <div ref="tableauViz"></div>
+        <tableau-viz
+            id="tableauViz"
+            src="https://public.tableau.com/views/Superstore_embedded_800x800/Overview"
+            hide-tabs
+        >
+        </tableau-viz>
       </v-row>
     </div>
     <div style="margin-top: 10px">
@@ -17,9 +22,19 @@
           ></v-text-field>
         </v-col>
         <v-col cols="auto">
-          <v-btn @click="filterState" height="40px" icon>
+
+          <v-btn class="button" @click="filterState" height="40px" icon>
             <v-icon>mdi-magnify</v-icon>
           </v-btn>
+
+          <v-btn class="button" @click="clearState" height="40px">
+            ClearState
+          </v-btn>
+
+          <v-btn class="button" @click="unDo" height="40px">
+            UnDo
+          </v-btn>
+
         </v-col>
       </v-row>
     </div>
@@ -32,62 +47,52 @@ import {FilterUpdateType} from 'tableau-api';
 export default {
   data() {
     return {
-      inputValue: ''
+      inputValue: '',
+      tableauViz: null,
+      url: "https://public.tableau.com/views/Superstore_24/Overview",
+      options: {
+        hideTabs: false,
+      }
     };
   },
-  methods: {
-
-    filterState() {
-      this.$nextTick(() => {
-        this.filterState();
-      });
-    }
-    // filterState() {
-    //   this.$nextTick(() => {
-    //     if (viz) {
-    //       viz.addEventListener('vizReady', () => {
-    //         const dataFilter = this.inputValue;
-    //         let sheet = viz.workbook.activeSheet;
-    //         const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
-    //         saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
-    //       });
-    //     }
-    //   });
-    // }
+  async mounted() {
+    // await this.initTableau()
   },
-  mounted() {
-    this.$nextTick(() => {
-
-      const containerDiv = this.$refs.tableauViz;
-      const url = "https://public.tableau.com/views/Superstore_24/Overview";
-      const options = {
-        hideTabs: false,
-        onFirstInteractive: () => {
-          console.log("Tableau viz has loaded.");
-          // let sheet = viz.getWorkbook().getActiveSheet();
-          // console.log(sheet)
-          // const saleMap = sheet.getWorksheets().find(ws => ws.name === "SaleMap");
-          // saleMap.applyFilterAsync("State", ["Washington"], FilterUpdateType.Replace);
-          // console.log(sheet)
-        },
-      };
-      const viz = new window.tableau.Viz(containerDiv, url, options);
+  methods: {
+    async initTableau() {
+      this.tableauViz = new window.tableau.Viz(
+          this.$refs.tableauViz,
+          this.url,
+          this.options
+      );
+      console.log(FilterUpdateType);
+      console.log(this.tableauViz);
+    },
+    async filterState() {
+      let viz = document.getElementById("tableauViz");
+      let dataFilter = this.inputValue
       console.log(viz);
+      let sheet = viz.workbook.activeSheet;
+      const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
+      saleMap.applyFilterAsync("State", [dataFilter], "replace");
+    },
+    async clearState() {
+      let viz = document.getElementById("tableauViz");
+      let sheet = viz.workbook.activeSheet;
+      const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
+      saleMap.clearFilterAsync("State");
+    },
+    async unDo() {
+      let viz = document.getElementById("tableauViz");
+      viz.undoAsync();
+    }
 
-      this.filterState = () => {
-        let sheet = viz.getWorkbook().getActiveSheet();
-        console.log(sheet)
-        // const saleMap = sheet.getWorksheets();
-        // console.log(saleMap)
-        const saleMap = sheet.getWorksheets().find(ws => ws.name === "SaleMap");
-        console.log("saleMap"+saleMap)
-        const dataFilter = this.inputValue;
-        console.log(dataFilter)
-        const fieldExists = saleMap.applyFilterAsync("State", [dataFilter], FilterUpdateType.Replace);
-        console.log(fieldExists)
-      };
-    });
+  },
 
-  }
 };
 </script>
+<style>
+.button {
+  margin-left: 15px;
+}
+</style>
