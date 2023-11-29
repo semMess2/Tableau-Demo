@@ -42,7 +42,6 @@
 
 </template>
 <script>
-import {FilterUpdateType} from 'tableau-api';
 
 export default {
   data() {
@@ -55,19 +54,9 @@ export default {
       }
     };
   },
-  async mounted() {
-    // await this.initTableau()
-  },
+
   methods: {
-    async initTableau() {
-      this.tableauViz = new window.tableau.Viz(
-          this.$refs.tableauViz,
-          this.url,
-          this.options
-      );
-      console.log(FilterUpdateType);
-      console.log(this.tableauViz);
-    },
+
     async filterState() {
       let viz = document.getElementById("tableauViz");
       let dataFilter = this.inputValue
@@ -76,12 +65,14 @@ export default {
       const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
       saleMap.applyFilterAsync("State", [dataFilter], "replace");
     },
+
     async clearState() {
       let viz = document.getElementById("tableauViz");
       let sheet = viz.workbook.activeSheet;
       const saleMap = sheet.worksheets.find((ws) => ws.name === "SaleMap");
       saleMap.clearFilterAsync("State");
     },
+
     async unDo() {
       let viz = document.getElementById("tableauViz");
       viz.undoAsync();
